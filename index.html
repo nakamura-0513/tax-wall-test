@@ -1,0 +1,1243 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>扶養の壁計算ツール【2025年改正対応】</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4a86e8;
+            --secondary-color: #6aa84f;
+            --accent-color: #f6b26b;
+            --light-bg: #f3f6fe;
+            --dark-text: #333333;
+            --border-color: #d9d9d9;
+            --success-color: #6aa84f;
+            --warning-color: #e69138;
+            --danger-color: #cc0000;
+        }
+        
+        body {
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+            line-height: 1.6;
+            color: var(--dark-text);
+            background-color: #f9f9f9;
+        }
+        
+        .header-gradient {
+            background: linear-gradient(135deg, var(--primary-color), #304ffe);
+        }
+        
+        .tab-active {
+            background: linear-gradient(to bottom, var(--primary-color), #304ffe);
+        }
+        
+        .custom-shadow {
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .hover-lift {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .hover-lift:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+        }
+        
+        .accent-border-left {
+            border-left: 5px solid var(--primary-color);
+        }
+        
+        .secondary-border-left {
+            border-left: 5px solid var(--secondary-color);
+        }
+        
+        .status-ok {
+            background-color: rgba(106, 168, 79, 0.05);
+            border-color: var(--success-color);
+        }
+        
+        .status-warning {
+            background-color: rgba(230, 145, 56, 0.05);
+            border-color: var(--warning-color);
+        }
+        
+        .status-danger {
+            background-color: rgba(204, 0, 0, 0.05);
+            border-color: var(--danger-color);
+        }
+        
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 250px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -125px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        
+        table.comparison-table th {
+            background: linear-gradient(135deg, var(--primary-color), #304ffe);
+            color: white;
+        }
+        
+        table.comparison-table tr:nth-child(even) {
+            background-color: rgba(237, 241, 253, 0.5);
+        }
+        
+        table.comparison-table td:first-child {
+            font-weight: bold;
+        }
+        
+        .print-friendly {
+            page-break-inside: avoid;
+        }
+    </style>
+</head>
+<body>
+    <div class="container max-w-5xl mx-auto px-4 py-8">
+        <!-- ヘッダー -->
+        <header class="header-gradient text-white text-center p-6 rounded-lg custom-shadow mb-8">
+            <h1 class="text-3xl font-bold mb-2">扶養の壁計算ツール【2025年改正対応】</h1>
+            <p class="text-lg">2025年税制改正に完全対応した扶養の壁シミュレーター（計算精度向上最終版）</p>
+        </header>
+
+        <!-- 概要説明 -->
+        <div class="bg-white rounded-xl p-6 custom-shadow hover-lift mb-8">
+            <h2 class="text-2xl font-bold text-blue-600 border-b-2 border-blue-600 pb-2 mb-4">
+                2025年税制改正のポイント
+            </h2>
+            <div class="space-y-4">
+                <p>2025年の税制改正では、以下の主要な変更点があります：</p>
+                <ul class="list-disc pl-8 space-y-2">
+                    <li><strong>基礎控除額の引き上げ</strong>：所得金額132万円以下は<strong>95万円</strong>（令和7・8年度の2年間限定措置）</li>
+                    <li><strong>給与所得控除の引き上げ</strong>：最低保障額が55万円から<strong>65万円</strong>に引き上げ</li>
+                    <li><strong>配偶者控除・配偶者特別控除の所得要件</strong>：48万円から<strong>58万円</strong>に引き上げ</li>
+                    <li><strong>配偶者特別控除の対象所得上限</strong>：133万円から<strong>190万円</strong>に拡大</li>
+                </ul>
+                <p class="font-semibold text-blue-600">これらの改正により、扶養の壁も変化します。主な壁は以下の3つです：</p>
+                <div class="grid md:grid-cols-3 gap-4">
+                    <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
+                        <h3 class="font-bold text-blue-700">100万円の壁</h3>
+                        <p class="text-sm">住民税の均等割が発生する自治体あり</p>
+                    </div>
+                    <div class="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-500">
+                        <h3 class="font-bold text-yellow-700">130万円の壁</h3>
+                        <p class="text-sm">配偶者の社会保険の扶養から外れる</p>
+                    </div>
+                    <div class="bg-red-50 p-4 rounded-lg border-l-4 border-red-500">
+                        <h3 class="font-bold text-red-700">160万円の壁</h3>
+                        <p class="text-sm">所得税が課税される（旧103万円の壁）</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- タブ -->
+        <div class="mb-6 border-b border-gray-200">
+            <div class="flex overflow-x-auto">
+                <button id="basicTab" class="tab-active text-white px-6 py-3 font-semibold rounded-t-lg">
+                    簡易診断
+                </button>
+                <button id="detailTab" class="bg-gray-100 text-gray-700 px-6 py-3 font-semibold rounded-t-lg">
+                    詳細シミュレーション
+                </button>
+            </div>
+        </div>
+
+        <!-- 簡易診断フォーム -->
+        <div id="basicSimulation" class="bg-white rounded-xl p-6 custom-shadow hover-lift mb-8">
+            <h2 class="text-2xl font-bold text-blue-600 border-b-2 border-blue-600 pb-2 mb-6">
+                簡易診断フォーム
+            </h2>
+            
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- 入力フォーム -->
+                <div class="bg-gray-50 p-6 rounded-lg accent-border-left">
+                    <h3 class="text-lg font-bold text-gray-700 mb-4">基本情報を入力</h3>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-bold mb-2" for="primaryIncome">
+                            世帯主（配偶者）の年収
+                            <span class="tooltip ml-1">
+                                <i class="fas fa-info-circle text-blue-500"></i>
+                                <span class="tooltip-text">配偶者特別控除の適用判定に使用します</span>
+                            </span>
+                        </label>
+                        <div class="relative">
+                            <input type="number" id="primaryIncome" class="w-full p-3 border border-gray-300 rounded" value="6000000" min="0">
+                            <span class="absolute right-3 top-3 text-gray-500">円</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-bold mb-2" for="employeeCount">
+                            勤務先の従業員数
+                            <span class="tooltip ml-1">
+                                <i class="fas fa-info-circle text-blue-500"></i>
+                                <span class="tooltip-text">社会保険加入義務の判定に使用します</span>
+                            </span>
+                        </label>
+                        <select id="employeeCount" class="w-full p-3 border border-gray-300 rounded">
+                            <option value="under50">50人以下</option>
+                            <option value="over51">51人以上</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-bold mb-2" for="hourlyWage">
+                            時給
+                        </label>
+                        <div class="relative">
+                            <input type="number" id="hourlyWage" class="w-full p-3 border border-gray-300 rounded" value="1200" min="500" max="5000" step="10">
+                            <span class="absolute right-3 top-3 text-gray-500">円</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-bold mb-2" for="hoursPerDay">
+                            1日の勤務時間
+                        </label>
+                        <div class="relative">
+                            <input type="number" id="hoursPerDay" class="w-full p-3 border border-gray-300 rounded" value="5" min="1" max="8" step="0.5">
+                            <span class="absolute right-3 top-3 text-gray-500">時間</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-bold mb-2" for="daysPerWeek">
+                            週の勤務日数
+                        </label>
+                        <div class="relative">
+                            <input type="number" id="daysPerWeek" class="w-full p-3 border border-gray-300 rounded" value="3" min="1" max="6" step="1">
+                            <span class="absolute right-3 top-3 text-gray-500">日</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-bold mb-2" for="dependentStatus">
+                            扶養状況
+                            <span class="tooltip ml-1">
+                                <i class="fas fa-info-circle text-blue-500"></i>
+                                <span class="tooltip-text">配偶者の社会保険の扶養に入っているかどうか</span>
+                            </span>
+                        </label>
+                        <select id="dependentStatus" class="w-full p-3 border border-gray-300 rounded">
+                            <option value="dependent">扶養あり（配偶者の健康保険・年金に加入）</option>
+                            <option value="independent">扶養なし（自分で社会保険に加入）</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-bold mb-2" for="transportationCost">
+                            交通費(月額)
+                        </label>
+                        <div class="relative">
+                            <input type="number" id="transportationCost" class="w-full p-3 border border-gray-300 rounded" value="5000" min="0" max="50000" step="100">
+                            <span class="absolute right-3 top-3 text-gray-500">円</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 結果表示 -->
+                <div class="bg-gray-50 p-6 rounded-lg secondary-border-left">
+                    <h3 class="text-lg font-bold text-gray-700 mb-4">計算結果</h3>
+                    
+                    <div class="space-y-4">
+                        <div class="p-3 bg-white rounded border border-gray-200">
+                            <div class="font-semibold text-gray-600">1ヶ月の勤務日数</div>
+                            <div id="daysPerMonth" class="text-lg font-bold text-blue-600">約13日（週3日 × 4.3週）</div>
+                        </div>
+                        
+                        <div class="p-3 bg-white rounded border border-gray-200">
+                            <div class="font-semibold text-gray-600">年間総収入（交通費込）</div>
+                            <div id="annualIncome" class="text-lg font-bold text-blue-600">936,000円</div>
+                        </div>
+                        
+                        <div id="wallStatusContainer" class="p-3 bg-white rounded border border-gray-200">
+                            <div class="font-semibold text-gray-600">扶養の壁の状況</div>
+                            <div id="wallStatus" class="text-base text-blue-800">
+                                <ul class="list-disc pl-5 space-y-2 mt-2">
+                                    <li><span class="font-semibold">100万円の壁（住民税）：</span>発生しません</li>
+                                    <li><span class="font-semibold">130万円の壁（社会保険の扶養）：</span>発生しません</li>
+                                    <li><span class="font-semibold">160万円の壁（所得税）：</span>発生しません</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="p-3 bg-white rounded border border-gray-200">
+                            <div class="font-semibold text-gray-600">手取り年収</div>
+                            <div id="takeHomeIncome" class="text-xl font-bold text-green-600">936,000円</div>
+                        </div>
+                        
+                        <div id="suggestedWorkCondition" class="p-3 bg-white rounded border border-gray-200">
+                            <div class="font-semibold text-gray-600">最適な収入条件</div>
+                            <div id="optimalConditions" class="text-base text-blue-800">
+                                現在の収入条件で税金や社会保険料の負担はありません。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 詳細シミュレーションフォーム -->
+        <div id="detailSimulation" class="bg-white rounded-xl p-6 custom-shadow hover-lift mb-8 hidden">
+            <h2 class="text-2xl font-bold text-blue-600 border-b-2 border-blue-600 pb-2 mb-6">
+                詳細シミュレーションフォーム
+            </h2>
+            
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- 詳細入力フォーム -->
+                <div class="bg-gray-50 p-6 rounded-lg accent-border-left">
+                    <h3 class="text-lg font-bold text-gray-700 mb-4">詳細情報を入力</h3>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-bold mb-2" for="detailPrimaryIncome">
+                            世帯主（配偶者）の年収
+                        </label>
+                        <div class="relative">
+                            <input type="number" id="detailPrimaryIncome" class="w-full p-3 border border-gray-300 rounded" value="6000000" min="0">
+                            <span class="absolute right-3 top-3 text-gray-500">円</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-bold mb-2" for="detailEmployeeCount">
+                            勤務先の従業員数
+                        </label>
+                        <select id="detailEmployeeCount" class="w-full p-3 border border-gray-300 rounded">
+                            <option value="under50">50人以下</option>
+                            <option value="over51">51人以上</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-bold mb-2" for="detailAnnualSalary">
+                            年収（給与・賞与）
+                        </label>
+                        <div class="relative">
+                            <input type="number" id="detailAnnualSalary" class="w-full p-3 border border-gray-300 rounded" value="936000" min="0">
+                            <span class="absolute right-3 top-3 text-gray-500">円</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-bold mb-2" for="detailTransportation">
+                            交通費（年間）
+                        </label>
+                        <div class="relative">
+                            <input type="number" id="detailTransportation" class="w-full p-3 border border-gray-300 rounded" value="60000" min="0">
+                            <span class="absolute right-3 top-3 text-gray-500">円</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-bold mb-2" for="detailWorkHoursPerWeek">
+                            週の勤務時間
+                        </label>
+                        <div class="relative">
+                            <input type="number" id="detailWorkHoursPerWeek" class="w-full p-3 border border-gray-300 rounded" value="15" min="1" max="40">
+                            <span class="absolute right-3 top-3 text-gray-500">時間</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-bold mb-2" for="detailDependentStatus">
+                            扶養状況
+                        </label>
+                        <select id="detailDependentStatus" class="w-full p-3 border border-gray-300 rounded">
+                            <option value="dependent">扶養あり（配偶者の健康保険・年金に加入）</option>
+                            <option value="independent">扶養なし（自分で社会保険に加入）</option>
+                        </select>
+                    </div>
+                    
+                    <h4 class="font-bold text-gray-700 mt-6 mb-3">所得控除（任意入力）</h4>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-bold mb-2" for="detailIncomeDeduction">
+                            所得税用所得控除（基礎控除・給与所得控除以外）
+                            <span class="tooltip ml-1">
+                                <i class="fas fa-info-circle text-blue-500"></i>
+                                <span class="tooltip-text">生命保険料控除、医療費控除など基礎控除・給与所得控除以外の控除額</span>
+                            </span>
+                        </label>
+                        <div class="relative">
+                            <input type="number" id="detailIncomeDeduction" class="w-full p-3 border border-gray-300 rounded" value="0" min="0">
+                            <span class="absolute right-3 top-3 text-gray-500">円</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-bold mb-2" for="detailResidentDeduction">
+                            住民税用所得控除（基礎控除・給与所得控除以外）
+                            <span class="tooltip ml-1">
+                                <i class="fas fa-info-circle text-blue-500"></i>
+                                <span class="tooltip-text">住民税で適用される所得控除額（所得税とは異なる場合があります）</span>
+                            </span>
+                        </label>
+                        <div class="relative">
+                            <input type="number" id="detailResidentDeduction" class="w-full p-3 border border-gray-300 rounded" value="0" min="0">
+                            <span class="absolute right-3 top-3 text-gray-500">円</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 詳細結果表示 -->
+                <div class="bg-gray-50 p-6 rounded-lg secondary-border-left">
+                    <h3 class="text-lg font-bold text-gray-700 mb-4">詳細計算結果</h3>
+                    
+                    <div class="space-y-6">
+                        <div class="bg-white p-4 rounded-lg border-l-4 border-blue-500">
+                            <h4 class="font-bold text-blue-700 mb-2">収入の内訳</h4>
+                            <table class="w-full">
+                                <tr class="border-b border-gray-200">
+                                    <td class="py-2 text-gray-700">給与収入</td>
+                                    <td id="detailSalaryIncome" class="py-2 text-right font-bold">936,000円</td>
+                                </tr>
+                                <tr class="border-b border-gray-200">
+                                    <td class="py-2 text-gray-700">交通費（非課税）</td>
+                                    <td id="detailTransportationDisplay" class="py-2 text-right font-bold">60,000円</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 text-gray-700">総収入</td>
+                                    <td id="detailTotalIncome" class="py-2 text-right font-bold">996,000円</td>
+                                </tr>
+                            </table>
+                        </div>
+                        
+                        <div class="bg-white p-4 rounded-lg border-l-4 border-green-500">
+                            <h4 class="font-bold text-green-700 mb-2">所得税計算（2025年改正反映）</h4>
+                            <table class="w-full">
+                                <tr class="border-b border-gray-200">
+                                    <td class="py-2 text-gray-700">給与収入</td>
+                                    <td id="detailTaxableSalary" class="py-2 text-right font-bold">936,000円</td>
+                                </tr>
+                                <tr class="border-b border-gray-200">
+                                    <td class="py-2 text-gray-700">給与所得控除（2025年：65万円）</td>
+                                    <td id="detailSalaryDeduction" class="py-2 text-right font-bold">650,000円</td>
+                                </tr>
+                                <tr class="border-b border-gray-200">
+                                    <td class="py-2 text-gray-700">給与所得</td>
+                                    <td id="detailSalaryIncomeTaxable" class="py-2 text-right font-bold">286,000円</td>
+                                </tr>
+                                <tr class="border-b border-gray-200">
+                                    <td class="py-2 text-gray-700">追加所得控除</td>
+                                    <td id="detailAdditionalDeduction" class="py-2 text-right font-bold">0円</td>
+                                </tr>
+                                <tr class="border-b border-gray-200">
+                                    <td class="py-2 text-gray-700">基礎控除（2025年：所得により95万円～58万円）</td>
+                                    <td id="detailBasicDeduction" class="py-2 text-right font-bold">950,000円</td>
+                                </tr>
+                                <tr class="border-b border-gray-200">
+                                    <td class="py-2 text-gray-700">課税所得金額</td>
+                                    <td id="detailTaxableIncome" class="py-2 text-right font-bold">0円</td>
+                                </tr>
+                                <tr class="border-b border-gray-200">
+                                    <td class="py-2 text-gray-700">所得税率</td>
+                                    <td id="detailTaxRate" class="py-2 text-right font-bold">5%</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 text-gray-700">所得税額</td>
+                                    <td id="detailIncomeTax" class="py-2 text-right font-bold">0円</td>
+                                </tr>
+                            </table>
+                        </div>
+                        
+                        <div class="bg-white p-4 rounded-lg border-l-4 border-yellow-500">
+                            <h4 class="font-bold text-yellow-700 mb-2">住民税計算</h4>
+                            <table class="w-full">
+                                <tr class="border-b border-gray-200">
+                                    <td class="py-2 text-gray-700">給与所得</td>
+                                    <td id="detailResidentTaxableIncome" class="py-2 text-right font-bold">286,000円</td>
+                                </tr>
+                                <tr class="border-b border-gray-200">
+                                    <td class="py-2 text-gray-700">基礎控除（住民税）</td>
+                                    <td id="detailResidentBasicDeduction" class="py-2 text-right font-bold">430,000円</td>
+                                </tr>
+                                <tr class="border-b border-gray-200">
+                                    <td class="py-2 text-gray-700">追加所得控除（住民税）</td>
+                                    <td id="detailResidentAdditionalDeduction" class="py-2 text-right font-bold">0円</td>
+                                </tr>
+                                <tr class="border-b border-gray-200">
+                                    <td class="py-2 text-gray-700">課税所得金額</td>
+                                    <td id="detailResidentTaxableAmount" class="py-2 text-right font-bold">0円</td>
+                                </tr>
+                                <tr class="border-b border-gray-200">
+                                    <td class="py-2 text-gray-700">住民税率（均等割含む）</td>
+                                    <td id="detailResidentTaxRate" class="py-2 text-right font-bold">10%</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 text-gray-700">住民税額</td>
+                                    <td id="detailResidentTax" class="py-2 text-right font-bold">0円</td>
+                                </tr>
+                            </table>
+                        </div>
+                        
+                        <div class="bg-white p-4 rounded-lg border-l-4 border-red-500">
+                            <h4 class="font-bold text-red-700 mb-2">社会保険料計算</h4>
+                            <table class="w-full">
+                                <tr class="border-b border-gray-200">
+                                    <td class="py-2 text-gray-700">健康保険料（被保険者負担分）</td>
+                                    <td id="detailHealthInsurance" class="py-2 text-right font-bold">0円</td>
+                                </tr>
+                                <tr class="border-b border-gray-200">
+                                    <td class="py-2 text-gray-700">厚生年金保険料（被保険者負担分）</td>
+                                    <td id="detailPensionInsurance" class="py-2 text-right font-bold">0円</td>
+                                </tr>
+                                <tr class="border-b border-gray-200">
+                                    <td class="py-2 text-gray-700">雇用保険料</td>
+                                    <td id="detailEmploymentInsurance" class="py-2 text-right font-bold">0円</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 text-gray-700">社会保険料合計</td>
+                                    <td id="detailTotalInsurance" class="py-2 text-right font-bold">0円</td>
+                                </tr>
+                            </table>
+                        </div>
+                        
+                        <div class="bg-white p-4 rounded-lg border-l-4 border-purple-500">
+                            <h4 class="font-bold text-purple-700 mb-2">手取り収入計算</h4>
+                            <table class="w-full">
+                                <tr class="border-b border-gray-200">
+                                    <td class="py-2 text-gray-700">総収入</td>
+                                    <td id="detailSummaryGrossIncome" class="py-2 text-right font-bold">996,000円</td>
+                                </tr>
+                                <tr class="border-b border-gray-200">
+                                    <td class="py-2 text-gray-700">所得税</td>
+                                    <td id="detailSummaryIncomeTax" class="py-2 text-right font-bold">0円</td>
+                                </tr>
+                                <tr class="border-b border-gray-200">
+                                    <td class="py-2 text-gray-700">住民税</td>
+                                    <td id="detailSummaryResidentTax" class="py-2 text-right font-bold">0円</td>
+                                </tr>
+                                <tr class="border-b border-gray-200">
+                                    <td class="py-2 text-gray-700">社会保険料</td>
+                                    <td id="detailSummaryInsurance" class="py-2 text-right font-bold">0円</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 font-bold text-purple-700">手取り年収</td>
+                                    <td id="detailSummaryNetIncome" class="py-2 text-right font-bold text-purple-700">996,000円</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- グラフと解説 -->
+        <div class="bg-white rounded-xl p-6 custom-shadow hover-lift mb-8">
+            <h2 class="text-2xl font-bold text-blue-600 border-b-2 border-blue-600 pb-2 mb-4">
+                扶養の壁の仕組みと影響
+            </h2>
+            
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="print-friendly">
+                    <h3 class="text-lg font-bold text-gray-700 mb-4">扶養の壁による年収と手取りの関係</h3>
+                    <div class="chart-container">
+                        <canvas id="incomeChart"></canvas>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-2">
+                        *グラフは一般的なケースを想定しており、個別の状況で異なる場合があります。
+                    </p>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-bold text-gray-700 mb-4">主な扶養の壁の説明</h3>
+                    <div class="space-y-4">
+                        <div class="p-4 rounded-lg bg-blue-50 border-l-4 border-blue-500">
+                            <h4 class="font-bold text-blue-700">100万円の壁</h4>
+                            <p class="text-sm">多くの自治体で年収100万円を超えると住民税均等割（年間約5,000円）が発生します。ただし、地域によって異なる場合があります。</p>
+                        </div>
+                        
+                        <div class="p-4 rounded-lg bg-yellow-50 border-l-4 border-yellow-500">
+                            <h4 class="font-bold text-yellow-700">106万円の壁</h4>
+                            <p class="text-sm">勤務先の従業員数が51人以上で、週20時間以上勤務の場合、年収106万円（月額8.8万円）を超えると社会保険（健康保険・厚生年金）に加入義務が生じ、給与の約14%が保険料として控除されます。</p>
+                        </div>
+                        
+                        <div class="p-4 rounded-lg bg-orange-50 border-l-4 border-orange-500">
+                            <h4 class="font-bold text-orange-700">130万円の壁</h4>
+                            <p class="text-sm">配偶者の社会保険（健康保険・厚生年金）の扶養に入っている場合、年収130万円を超えると扶養から外れ、自身で国民健康保険・国民年金に加入する必要があります。扶養がない場合は影響を受けません。</p>
+                            <p class="text-sm mt-1">※2025年改正で一時的な収入増の場合は事業主の証明書で扶養継続可能になりました。</p>
+                        </div>
+                        
+                        <div class="p-4 rounded-lg bg-red-50 border-l-4 border-red-500">
+                            <h4 class="font-bold text-red-700">160万円の壁（旧103万円の壁）</h4>
+                            <p class="text-sm">2025年の改正により、所得税が課税される基準が103万円から160万円に引き上げられました。給与所得控除65万円と基礎控除95万円（所得金額132万円以下、令和7・8年度の2年間限定措置）により、年収160万円までは所得税が発生しなくなります。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 扶養の壁まとめ表 -->
+        <div class="bg-white rounded-xl p-6 custom-shadow hover-lift mb-8">
+            <h2 class="text-2xl font-bold text-blue-600 border-b-2 border-blue-600 pb-2 mb-6">
+                扶養の壁まとめ表（2025年改正対応）
+            </h2>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full comparison-table border-collapse">
+                    <thead>
+                        <tr>
+                            <th class="p-3 text-left">年収範囲</th>
+                            <th class="p-3 text-left">所得税</th>
+                            <th class="p-3 text-left">住民税</th>
+                            <th class="p-3 text-left">社会保険</th>
+                            <th class="p-3 text-left">配偶者特別控除</th>
+                            <th class="p-3 text-left">手取り額</th>
+                            <th class="p-3 text-left">備考</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="p-3">100万円以下</td>
+                            <td class="p-3"><b>課税なし</b></td>
+                            <td class="p-3"><b>課税なし</b></td>
+                            <td class="p-3">加入対象外</td>
+                            <td class="p-3"><b>38万円</b>（配偶者の所得が<b>58万円以下</b>の場合）</td>
+                            <td class="p-3">ほぼ収入額と同じ</td>
+                            <td class="p-3">2025年改正後の基礎控除額が所得金額132万円以下は<b>95万円</b>（令和7・8年度の2年間限定）</td>
+                        </tr>
+                        <tr>
+                            <td class="p-3">100万円超～160万円以下（106万円の壁存在）</td>
+                            <td class="p-3"><b>課税なし</b></td>
+                            <td class="p-3">課税なし（100万超で住民税均等割のみ発生する自治体あり）</td>
+                            <td class="p-3"><b>週労働時間20時間以上</b>、<b>賃金月額8.8万円以上（年収106万円以上）</b>、<b>雇用期間2ヶ月以上</b>、<b>従業員数51人以上</b>の企業で加入対象</td>
+                            <td class="p-3"><b>38万円</b>（配偶者の所得が<b>58万円超～123万円以下</b>の場合）</td>
+                            <td class="p-3">社会保険加入の場合：約14%減、非加入：ほぼ収入額と同じ</td>
+                            <td class="p-3">2025年改正後の給与所得控除<b>65万円</b>・基礎控除額（所得132万円以下は<b>95万円</b>、2年間限定）</td>
+                        </tr>
+                        <tr>
+                            <td class="p-3"><b>130万円の壁</b>（社会保険の扶養要件）</td>
+                            <td class="p-3"><b>影響なし</b></td>
+                            <td class="p-3"><b>影響なし</b></td>
+                            <td class="p-3"><b>配偶者の社会保険（健康保険・年金）の扶養から外れる</b>。自身で国民健康保険・国民年金に加入。特に<b>従業員数50人以下の企業勤務の場合はこの壁が重要</b></td>
+                            <td class="p-3"><b>影響なし</b></td>
+                            <td class="p-3"><b>配偶者の扶養から外れる場合</b>、国民健康保険・国民年金保険料の負担が発生（年間約44万円前後）。<b>扶養がない場合は影響なし</b></td>
+                            <td class="p-3">2025年改正で一時的な収入増なら事業主の証明書で扶養継続可能。従業員数50人以下の企業勤務の場合はこの壁が適用</td>
+                        </tr>
+                        <tr>
+                            <td class="p-3">160万円超～201万円以下</td>
+                            <td class="p-3">課税あり（5%）</td>
+                            <td class="p-3">課税あり（約10%）</td>
+                            <td class="p-3"><b>週労働時間20時間以上</b>、<b>賃金月額8.8万円以上（年収106万円以上）</b>、<b>雇用期間2ヶ月以上</b>、<b>従業員数51人以上</b>の企業で加入対象</td>
+                            <td class="p-3"><b>38万円～3万円</b>（所得に応じて逓減）</td>
+                            <td class="p-3">約20～25%減</td>
+                            <td class="p-3">2025年改正後の配偶者特別控除適用範囲（所得123万円超～190万円以下）</td>
+                        </tr>
+                        <tr>
+                            <td class="p-3">201万円超～257万円以下</td>
+                            <td class="p-3">課税あり（5～10%）</td>
+                            <td class="p-3">課税あり（約10%）</td>
+                            <td class="p-3">加入対象</td>
+                            <td class="p-3"><b>3万円</b>から<b>0円</b>（所得額に応じて逓減）</td>
+                            <td class="p-3">約25～30%減</td>
+                            <td class="p-3">2025年改正後の配偶者特別控除適用範囲。所得額に応じて控除額が逓減（所得190万円以下）</td>
+                        </tr>
+                        <tr>
+                            <td class="p-3">257万円超</td>
+                            <td class="p-3">課税あり（10%以上）</td>
+                            <td class="p-3">課税あり（約10%）</td>
+                            <td class="p-3">加入対象</td>
+                            <td class="p-3">対象外</td>
+                            <td class="p-3">約30%以上減</td>
+                            <td class="p-3">2025年改正後の配偶者特別控除対象外</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <footer class="text-center text-gray-600 text-sm py-6">
+            <p>© 2025 扶養の壁計算ツール【2025年改正対応】</p>
+            <p class="mt-1">※このシミュレーションは一般的なケースを想定しており、個別の状況によって実際の税額等が異なる場合があります。</p>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+    <script>
+        // チャートの初期化
+        const ctx = document.getElementById('incomeChart').getContext('2d');
+        
+        // 年収と手取りのデータ（例：従業員51人以上、配偶者の扶養ありの場合）
+        const annualIncomes = [50, 100, 106, 130, 160, 200, 250];
+        const takeHomeIncomes = [
+            50,  // 50万円の年収はそのまま手取り
+            100, // 100万円の年収はほぼそのまま
+            92,  // 106万円で社会保険加入で約14%減
+            78,  // 130万円で扶養から外れて国保・国民年金負担
+            120, // 160万円で所得税・住民税発生
+            150, // 200万円
+            180  // 250万円
+        ];
+        
+        // 年収と手取りのデータ（例：従業員50人以下、配偶者の扶養ありの場合）
+        const takeHomeIncomes2 = [
+            50,  // 50万円の年収はそのまま手取り
+            100, // 100万円の年収はほぼそのまま
+            106, // 106万円はそのまま（社会保険加入義務なし）
+            78,  // 130万円で扶養から外れて国保・国民年金負担
+            120, // 160万円で所得税・住民税発生
+            150, // 200万円
+            180  // 250万円
+        ];
+        
+        // グラフの作成
+        const incomeChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: annualIncomes.map(i => i + '万円'),
+                datasets: [
+                    {
+                        label: '年収',
+                        data: annualIncomes,
+                        borderColor: 'rgba(74, 134, 232, 1)',
+                        backgroundColor: 'rgba(74, 134, 232, 0.1)',
+                        borderWidth: 2,
+                        fill: false
+                    },
+                    {
+                        label: '手取り（従業員51人以上）',
+                        data: takeHomeIncomes,
+                        borderColor: 'rgba(106, 168, 79, 1)',
+                        backgroundColor: 'rgba(106, 168, 79, 0.1)',
+                        borderWidth: 2,
+                        borderDash: [],
+                        fill: false
+                    },
+                    {
+                        label: '手取り（従業員50人以下）',
+                        data: takeHomeIncomes2,
+                        borderColor: 'rgba(230, 145, 56, 1)',
+                        backgroundColor: 'rgba(230, 145, 56, 0.1)',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            drawOnChartArea: false
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: '金額（万円）'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return value + '万円';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // タブの切り替え処理
+        document.getElementById('basicTab').addEventListener('click', function() {
+            document.getElementById('basicTab').classList.add('tab-active', 'text-white');
+            document.getElementById('basicTab').classList.remove('bg-gray-100', 'text-gray-700');
+            document.getElementById('detailTab').classList.remove('tab-active', 'text-white');
+            document.getElementById('detailTab').classList.add('bg-gray-100', 'text-gray-700');
+            document.getElementById('basicSimulation').classList.remove('hidden');
+            document.getElementById('detailSimulation').classList.add('hidden');
+        });
+        
+        document.getElementById('detailTab').addEventListener('click', function() {
+            document.getElementById('detailTab').classList.add('tab-active', 'text-white');
+            document.getElementById('detailTab').classList.remove('bg-gray-100', 'text-gray-700');
+            document.getElementById('basicTab').classList.remove('tab-active', 'text-white');
+            document.getElementById('basicTab').classList.add('bg-gray-100', 'text-gray-700');
+            document.getElementById('detailSimulation').classList.remove('hidden');
+            document.getElementById('basicSimulation').classList.add('hidden');
+        });
+        
+        // 数値フォーマット用関数
+        function formatNumber(number) {
+            return new Intl.NumberFormat('ja-JP').format(number);
+        }
+        
+        // 簡易診断の計算ロジック
+        function calculateBasicSimulation() {
+            // 入力値の取得
+            const primaryIncome = parseFloat(document.getElementById('primaryIncome').value) || 0;
+            const employeeCount = document.getElementById('employeeCount').value;
+            const hourlyWage = parseFloat(document.getElementById('hourlyWage').value) || 0;
+            const hoursPerDay = parseFloat(document.getElementById('hoursPerDay').value) || 0;
+            const daysPerWeek = parseFloat(document.getElementById('daysPerWeek').value) || 0;
+            const transportationCost = parseFloat(document.getElementById('transportationCost').value) || 0;
+            const dependentStatus = document.getElementById('dependentStatus').value;
+            
+            // 計算
+            const daysPerMonth = daysPerWeek * 4.3; // 月平均の勤務日数
+            const monthlyIncome = hourlyWage * hoursPerDay * daysPerMonth;
+            const annualSalary = monthlyIncome * 12; // 年収（給与のみ）
+            const annualTransportation = transportationCost * 12; // 年間交通費
+            const totalAnnualIncome = annualSalary + annualTransportation; // 総年収
+            
+            // 詳細な計算用の諸データ
+            const is51EmployeesOrMore = employeeCount === 'over51';
+            const isDependent = dependentStatus === 'dependent';
+            const weeksWorkHours = hoursPerDay * daysPerWeek;
+            const isOver20HoursPerWeek = weeksWorkHours >= 20;
+            const isEligibleForSocialInsurance = is51EmployeesOrMore && isOver20HoursPerWeek && annualSalary >= 1060000; // 106万円以上
+            
+            // 給与所得控除（2025年改正後）
+            let salaryDeduction;
+            if (annualSalary <= 1900000) { // 190万円以下
+                salaryDeduction = 650000; // 65万円（2025年改正後の最低保障額）
+            } else if (annualSalary <= 3600000) {
+                salaryDeduction = annualSalary * 0.4 - 110000;
+            } else if (annualSalary <= 6600000) {
+                salaryDeduction = annualSalary * 0.3 + 250000;
+            } else if (annualSalary <= 8500000) {
+                salaryDeduction = annualSalary * 0.2 + 910000;
+            } else {
+                salaryDeduction = 1950000; // 195万円（上限）
+            }
+            
+            // 給与所得
+            const salaryIncome = Math.max(annualSalary - salaryDeduction, 0);
+            
+            // 基礎控除（2025年改正後）
+            let basicDeduction;
+            if (salaryIncome <= 1320000) { // 所得132万円以下
+                basicDeduction = 950000; // 95万円（2年間限定措置）
+            } else if (salaryIncome <= 3360000) { // 所得132万円超336万円以下
+                basicDeduction = 880000; // 88万円（2年間限定、その後58万円）
+            } else if (salaryIncome <= 6950000) { // 所得336万円超695万円以下
+                basicDeduction = 680000; // 68万円（2年間限定、その後58万円）
+            } else if (salaryIncome <= 9000000) { // 所得695万円超900万円以下
+                basicDeduction = 630000; // 63万円（2年間限定、その後58万円）
+            } else if (salaryIncome <= 23500000) { // 所得900万円超2350万円以下
+                basicDeduction = 580000; // 58万円
+            } else if (salaryIncome <= 25000000) {
+                basicDeduction = 290000; // 29万円
+            } else {
+                basicDeduction = 0; // 基礎控除なし
+            }
+            
+            // 課税所得金額（所得税）
+            const taxableIncome = Math.max(salaryIncome - basicDeduction, 0);
+            
+            // 所得税率と所得税額
+            let incomeTaxRate = 0.05; // 基本税率5%
+            let incomeTax = 0;
+            
+            if (taxableIncome > 0) {
+                if (taxableIncome <= 1949000) {
+                    incomeTaxRate = 0.05;
+                    incomeTax = taxableIncome * 0.05;
+                } else if (taxableIncome <= 3299000) {
+                    incomeTaxRate = 0.1;
+                    incomeTax = taxableIncome * 0.1 - 97500;
+                } else if (taxableIncome <= 6949000) {
+                    incomeTaxRate = 0.2;
+                    incomeTax = taxableIncome * 0.2 - 427500;
+                } else if (taxableIncome <= 8999000) {
+                    incomeTaxRate = 0.23;
+                    incomeTax = taxableIncome * 0.23 - 636000;
+                } else if (taxableIncome <= 17999000) {
+                    incomeTaxRate = 0.33;
+                    incomeTax = taxableIncome * 0.33 - 1536000;
+                } else if (taxableIncome <= 39999000) {
+                    incomeTaxRate = 0.4;
+                    incomeTax = taxableIncome * 0.4 - 2796000;
+                } else {
+                    incomeTaxRate = 0.45;
+                    incomeTax = taxableIncome * 0.45 - 4796000;
+                }
+            }
+            
+            // 住民税計算
+            const residentTaxBasicDeduction = 430000; // 住民税の基礎控除43万円
+            const taxableIncomeResidentTax = Math.max(salaryIncome - residentTaxBasicDeduction, 0);
+            let residentTax = 0;
+            
+            if (taxableIncomeResidentTax > 0) {
+                residentTax = taxableIncomeResidentTax * 0.1; // 10%（均等割含む概算）
+            } else if (annualSalary > 1000000) {
+                residentTax = 5000; // 年収100万円超で均等割のみかかる自治体あり
+            }
+            
+            // 社会保険料計算
+            let socialInsurance = 0;
+            let health_insurance = 0;
+            let pension_insurance = 0;
+            let employment_insurance = 0;
+            
+            // 勤務先の従業員数が51人以上で、週20時間以上勤務、年収106万円以上の場合
+            if (isEligibleForSocialInsurance) {
+                // 社会保険料は給与の約14%と仮定
+                health_insurance = annualSalary * 0.05; // 健康保険料（約5%）
+                pension_insurance = annualSalary * 0.0915; // 厚生年金保険料（約9.15%）
+                employment_insurance = annualSalary * 0.003; // 雇用保険料（約0.3%）
+                socialInsurance = health_insurance + pension_insurance + employment_insurance;
+            }
+            
+            // 国民健康保険・国民年金（扶養から外れる場合）
+            let nationalInsurance = 0;
+            if (isDependent && annualSalary > 1300000) { // 130万円の壁
+                // 国民健康保険と国民年金の合計年間約44万円と仮定
+                nationalInsurance = 440000;
+            }
+            
+            // 手取り額計算
+            let takeHome = totalAnnualIncome - incomeTax - residentTax - socialInsurance;
+            
+            // 扶養から外れた場合の国保・国民年金負担を反映
+            if (isDependent && annualSalary > 1300000) {
+                takeHome -= nationalInsurance;
+            }
+            
+            // 結果の表示
+            document.getElementById('daysPerMonth').textContent = `約${daysPerMonth.toFixed(1)}日（週${daysPerWeek}日 × 4.3週）`;
+            document.getElementById('annualIncome').textContent = formatNumber(totalAnnualIncome) + '円';
+            
+            // 壁の状況表示
+            let wallStatusHTML = '<ul class="list-disc pl-5 space-y-2 mt-2">';
+            
+            // 100万円の壁（住民税）
+            if (annualSalary > 1000000) {
+                wallStatusHTML += '<li><span class="font-semibold">100万円の壁（住民税）：</span>自治体によっては均等割（約5,000円）が発生します</li>';
+            } else {
+                wallStatusHTML += '<li><span class="font-semibold">100万円の壁（住民税）：</span>発生しません</li>';
+            }
+            
+            // 106万円の壁（社会保険）
+            if (is51EmployeesOrMore && isOver20HoursPerWeek) {
+                if (annualSalary > 1060000) {
+                    wallStatusHTML += '<li><span class="font-semibold">106万円の壁（社会保険）：</span>社会保険料負担が発生します（年間約' + formatNumber(Math.round(socialInsurance)) + '円）</li>';
+                } else {
+                    wallStatusHTML += '<li><span class="font-semibold">106万円の壁（社会保険）：</span>発生しません（51人以上の企業で週20時間以上働く場合は106万円以上で加入義務）</li>';
+                }
+            } else {
+                wallStatusHTML += '<li><span class="font-semibold">106万円の壁（社会保険）：</span>勤務条件により適用外です</li>';
+            }
+            
+            // 130万円の壁（社会保険の扶養）
+            if (isDependent) {
+                if (annualSalary > 1300000) {
+                    wallStatusHTML += '<li><span class="font-semibold text-red-600">130万円の壁（社会保険の扶養）：</span>配偶者の扶養から外れ、国民健康保険・国民年金の負担が発生します（年間約44万円）</li>';
+                } else {
+                    wallStatusHTML += '<li><span class="font-semibold">130万円の壁（社会保険の扶養）：</span>発生しません（配偶者の扶養内です）</li>';
+                }
+            } else {
+                wallStatusHTML += '<li><span class="font-semibold">130万円の壁（社会保険の扶養）：</span>扶養状況なしのため影響ありません</li>';
+            }
+            
+            // 160万円の壁（所得税）
+            if (annualSalary > 1600000) {
+                wallStatusHTML += '<li><span class="font-semibold">160万円の壁（所得税）：</span>所得税が発生します（年間約' + formatNumber(Math.round(incomeTax)) + '円）</li>';
+            } else {
+                wallStatusHTML += '<li><span class="font-semibold">160万円の壁（所得税）：</span>発生しません（2025年改正により給与所得控除・基礎控除の拡大で非課税範囲拡大）</li>';
+            }
+            
+            wallStatusHTML += '</ul>';
+            
+            // ステータス表示の背景色を条件に応じて変更
+            const wallStatusContainer = document.getElementById('wallStatusContainer');
+            if (annualSalary > 1300000 && isDependent) {
+                wallStatusContainer.className = 'p-3 bg-white rounded border border-gray-200 status-danger';
+            } else if ((annualSalary > 1060000 && is51EmployeesOrMore && isOver20HoursPerWeek) || annualSalary > 1600000) {
+                wallStatusContainer.className = 'p-3 bg-white rounded border border-gray-200 status-warning';
+            } else {
+                wallStatusContainer.className = 'p-3 bg-white rounded border border-gray-200 status-ok';
+            }
+            
+            document.getElementById('wallStatus').innerHTML = wallStatusHTML;
+            document.getElementById('takeHomeIncome').textContent = formatNumber(Math.round(takeHome)) + '円';
+            
+            // 最適な収入条件の提案
+            let optimalHTML = '';
+            
+            if (annualSalary <= 1000000) {
+                optimalHTML = '現在の収入条件で税金や社会保険料の負担はありません。';
+            } else if (annualSalary <= 1060000) {
+                optimalHTML = '年収100万円を超えると住民税均等割が発生する可能性があります。現状では他の壁の影響は受けていません。';
+            } else if (annualSalary <= 1300000) {
+                if (is51EmployeesOrMore && isOver20HoursPerWeek) {
+                    optimalHTML = '年収106万円の壁を超えて社会保険料負担が発生しています。もし扶養の状況を考えると、130万円未満に抑えることで配偶者の扶養から外れないようにできます。';
+                } else {
+                    optimalHTML = '現在の勤務条件では社会保険加入義務はなく、130万円未満に抑えることで配偶者の扶養から外れないようにできます。';
+                }
+            } else if (annualSalary <= 1600000) {
+                optimalHTML = '配偶者の扶養から外れることで国民健康保険・国民年金の負担が発生します。可能であれば130万円以下に抑えることで負担を減らせます。';
+            } else {
+                optimalHTML = '所得税・住民税・社会保険料すべての負担が発生しています。税制上の恩恵を受けるには年収を160万円以下に抑えることを検討してください。';
+            }
+            
+            document.getElementById('optimalConditions').innerHTML = optimalHTML;
+        }
+        
+        // 詳細シミュレーションの計算ロジック
+        function calculateDetailSimulation() {
+            // 入力値の取得
+            const primaryIncome = parseFloat(document.getElementById('detailPrimaryIncome').value) || 0;
+            const employeeCount = document.getElementById('detailEmployeeCount').value;
+            const annualSalary = parseFloat(document.getElementById('detailAnnualSalary').value) || 0;
+            const annualTransportation = parseFloat(document.getElementById('detailTransportation').value) || 0;
+            const workHoursPerWeek = parseFloat(document.getElementById('detailWorkHoursPerWeek').value) || 0;
+            const dependentStatus = document.getElementById('detailDependentStatus').value;
+            const additionalIncomeDeduction = parseFloat(document.getElementById('detailIncomeDeduction').value) || 0;
+            const additionalResidentDeduction = parseFloat(document.getElementById('detailResidentDeduction').value) || 0;
+            
+            // 基本計算
+            const totalIncome = annualSalary + annualTransportation;
+            
+            // 詳細な計算用の諸データ
+            const is51EmployeesOrMore = employeeCount === 'over51';
+            const isDependent = dependentStatus === 'dependent';
+            const isOver20HoursPerWeek = workHoursPerWeek >= 20;
+            const isEligibleForSocialInsurance = is51EmployeesOrMore && isOver20HoursPerWeek && annualSalary >= 1060000; // 106万円以上
+            
+            // 給与所得控除（2025年改正後）
+            let salaryDeduction;
+            if (annualSalary <= 1900000) { // 190万円以下
+                salaryDeduction = 650000; // 65万円（2025年改正後の最低保障額）
+            } else if (annualSalary <= 3600000) {
+                salaryDeduction = annualSalary * 0.4 - 110000;
+            } else if (annualSalary <= 6600000) {
+                salaryDeduction = annualSalary * 0.3 + 250000;
+            } else if (annualSalary <= 8500000) {
+                salaryDeduction = annualSalary * 0.2 + 910000;
+            } else {
+                salaryDeduction = 1950000; // 195万円（上限）
+            }
+            
+            // 給与所得
+            const salaryIncome = Math.max(annualSalary - salaryDeduction, 0);
+            
+            // 基礎控除（2025年改正後）
+            let basicDeduction;
+            if (salaryIncome <= 1320000) { // 所得132万円以下
+                basicDeduction = 950000; // 95万円（2年間限定措置）
+            } else if (salaryIncome <= 3360000) { // 所得132万円超336万円以下
+                basicDeduction = 880000; // 88万円（2年間限定、その後58万円）
+            } else if (salaryIncome <= 6950000) { // 所得336万円超695万円以下
+                basicDeduction = 680000; // 68万円（2年間限定、その後58万円）
+            } else if (salaryIncome <= 9000000) { // 所得695万円超900万円以下
+                basicDeduction = 630000; // 63万円（2年間限定、その後58万円）
+            } else if (salaryIncome <= 23500000) { // 所得900万円超2350万円以下
+                basicDeduction = 580000; // 58万円
+            } else if (salaryIncome <= 25000000) {
+                basicDeduction = 290000; // 29万円
+            } else {
+                basicDeduction = 0; // 基礎控除なし
+            }
+            
+            // 課税所得金額（所得税）
+            const taxableIncome = Math.max(salaryIncome - basicDeduction - additionalIncomeDeduction, 0);
+            
+            // 所得税率と所得税額
+            let incomeTaxRate = 0.05; // 基本税率5%
+            let incomeTax = 0;
+            
+            if (taxableIncome > 0) {
+                if (taxableIncome <= 1949000) {
+                    incomeTaxRate = 0.05;
+                    incomeTax = taxableIncome * 0.05;
+                } else if (taxableIncome <= 3299000) {
+                    incomeTaxRate = 0.1;
+                    incomeTax = taxableIncome * 0.1 - 97500;
+                } else if (taxableIncome <= 6949000) {
+                    incomeTaxRate = 0.2;
+                    incomeTax = taxableIncome * 0.2 - 427500;
+                } else if (taxableIncome <= 8999000) {
+                    incomeTaxRate = 0.23;
+                    incomeTax = taxableIncome * 0.23 - 636000;
+                } else if (taxableIncome <= 17999000) {
+                    incomeTaxRate = 0.33;
+                    incomeTax = taxableIncome * 0.33 - 1536000;
+                } else if (taxableIncome <= 39999000) {
+                    incomeTaxRate = 0.4;
+                    incomeTax = taxableIncome * 0.4 - 2796000;
+                } else {
+                    incomeTaxRate = 0.45;
+                    incomeTax = taxableIncome * 0.45 - 4796000;
+                }
+            }
+            
+            // 住民税計算
+            const residentTaxBasicDeduction = 430000; // 住民税の基礎控除43万円
+            const taxableIncomeResidentTax = Math.max(salaryIncome - residentTaxBasicDeduction - additionalResidentDeduction, 0);
+            let residentTax = 0;
+            
+            if (taxableIncomeResidentTax > 0) {
+                residentTax = taxableIncomeResidentTax * 0.1; // 10%（均等割含む概算）
+            } else if (annualSalary > 1000000) {
+                residentTax = 5000; // 年収100万円超で均等割のみかかる自治体あり
+            }
+            
+            // 社会保険料計算
+            let health_insurance = 0;
+            let pension_insurance = 0;
+            let employment_insurance = 0;
+            let socialInsurance = 0;
+            
+            // 勤務先の従業員数が51人以上で、週20時間以上勤務、年収106万円以上の場合
+            if (isEligibleForSocialInsurance) {
+                // 社会保険料は給与の約14%と仮定
+                health_insurance = annualSalary * 0.05; // 健康保険料（約5%）
+                pension_insurance = annualSalary * 0.0915; // 厚生年金保険料（約9.15%）
+                employment_insurance = annualSalary * 0.003; // 雇用保険料（約0.3%）
+                socialInsurance = health_insurance + pension_insurance + employment_insurance;
+            }
+            
+            // 国民健康保険・国民年金（扶養から外れる場合）
+            let nationalInsurance = 0;
+            if (isDependent && annualSalary > 1300000) { // 130万円の壁
+                // 国民健康保険と国民年金の合計年間約44万円と仮定
+                health_insurance = 250000; // 健康保険料（約25万円）
+                pension_insurance = 190000; // 国民年金保険料（約19万円）
+                nationalInsurance = health_insurance + pension_insurance;
+            }
+            
+            // 手取り額計算
+            let takeHome = totalIncome - incomeTax - residentTax - socialInsurance;
+            
+            // 扶養から外れた場合の国保・国民年金負担を反映
+            if (isDependent && annualSalary > 1300000) {
+                takeHome -= nationalInsurance;
+            }
+            
+            // 詳細結果の表示
+            document.getElementById('detailSalaryIncome').textContent = formatNumber(annualSalary) + '円';
+            document.getElementById('detailTransportationDisplay').textContent = formatNumber(annualTransportation) + '円';
+            document.getElementById('detailTotalIncome').textContent = formatNumber(totalIncome) + '円';
+            
+            document.getElementById('detailTaxableSalary').textContent = formatNumber(annualSalary) + '円';
+            document.getElementById('detailSalaryDeduction').textContent = formatNumber(salaryDeduction) + '円';
+            document.getElementById('detailSalaryIncomeTaxable').textContent = formatNumber(salaryIncome) + '円';
+            document.getElementById('detailAdditionalDeduction').textContent = formatNumber(additionalIncomeDeduction) + '円';
+            document.getElementById('detailBasicDeduction').textContent = formatNumber(basicDeduction) + '円';
+            document.getElementById('detailTaxableIncome').textContent = formatNumber(taxableIncome) + '円';
+            document.getElementById('detailTaxRate').textContent = (incomeTaxRate * 100) + '%';
+            document.getElementById('detailIncomeTax').textContent = formatNumber(Math.round(incomeTax)) + '円';
+            
+            document.getElementById('detailResidentTaxableIncome').textContent = formatNumber(salaryIncome) + '円';
+            document.getElementById('detailResidentBasicDeduction').textContent = formatNumber(residentTaxBasicDeduction) + '円';
+            document.getElementById('detailResidentAdditionalDeduction').textContent = formatNumber(additionalResidentDeduction) + '円';
+            document.getElementById('detailResidentTaxableAmount').textContent = formatNumber(taxableIncomeResidentTax) + '円';
+            document.getElementById('detailResidentTaxRate').textContent = '10%';
+            document.getElementById('detailResidentTax').textContent = formatNumber(Math.round(residentTax)) + '円';
+            
+            // 社会保険料の表示
+            if (isEligibleForSocialInsurance) {
+                document.getElementById('detailHealthInsurance').textContent = formatNumber(Math.round(health_insurance)) + '円';
+                document.getElementById('detailPensionInsurance').textContent = formatNumber(Math.round(pension_insurance)) + '円';
+                document.getElementById('detailEmploymentInsurance').textContent = formatNumber(Math.round(employment_insurance)) + '円';
+                document.getElementById('detailTotalInsurance').textContent = formatNumber(Math.round(socialInsurance)) + '円';
+            } else if (isDependent && annualSalary > 1300000) {
+                document.getElementById('detailHealthInsurance').textContent = formatNumber(Math.round(health_insurance)) + '円（国民健康保険）';
+                document.getElementById('detailPensionInsurance').textContent = formatNumber(Math.round(pension_insurance)) + '円（国民年金）';
+                document.getElementById('detailEmploymentInsurance').textContent = '0円';
+                document.getElementById('detailTotalInsurance').textContent = formatNumber(Math.round(nationalInsurance)) + '円';
+            } else {
+                document.getElementById('detailHealthInsurance').textContent = '0円';
+                document.getElementById('detailPensionInsurance').textContent = '0円';
+                document.getElementById('detailEmploymentInsurance').textContent = '0円';
+                document.getElementById('detailTotalInsurance').textContent = '0円';
+            }
+            
+            // 手取り額の表示
+            document.getElementById('detailSummaryGrossIncome').textContent = formatNumber(totalIncome) + '円';
+            document.getElementById('detailSummaryIncomeTax').textContent = formatNumber(Math.round(incomeTax)) + '円';
+            document.getElementById('detailSummaryResidentTax').textContent = formatNumber(Math.round(residentTax)) + '円';
+            
+            // 社会保険料の表示（手取り計算用）
+            if (isEligibleForSocialInsurance) {
+                document.getElementById('detailSummaryInsurance').textContent = formatNumber(Math.round(socialInsurance)) + '円';
+            } else if (isDependent && annualSalary > 1300000) {
+                document.getElementById('detailSummaryInsurance').textContent = formatNumber(Math.round(nationalInsurance)) + '円（国保・国民年金）';
+            } else {
+                document.getElementById('detailSummaryInsurance').textContent = '0円';
+            }
+            
+            document.getElementById('detailSummaryNetIncome').textContent = formatNumber(Math.round(takeHome)) + '円';
+        }
+        
+        // 入力値変更時のイベントリスナー（簡易診断）
+        document.getElementById('primaryIncome').addEventListener('input', calculateBasicSimulation);
+        document.getElementById('employeeCount').addEventListener('change', calculateBasicSimulation);
+        document.getElementById('hourlyWage').addEventListener('input', calculateBasicSimulation);
+        document.getElementById('hoursPerDay').addEventListener('input', calculateBasicSimulation);
+        document.getElementById('daysPerWeek').addEventListener('input', calculateBasicSimulation);
+        document.getElementById('dependentStatus').addEventListener('change', calculateBasicSimulation);
+        document.getElementById('transportationCost').addEventListener('input', calculateBasicSimulation);
+        
+        // 入力値変更時のイベントリスナー（詳細シミュレーション）
+        document.getElementById('detailPrimaryIncome').addEventListener('input', calculateDetailSimulation);
+        document.getElementById('detailEmployeeCount').addEventListener('change', calculateDetailSimulation);
+        document.getElementById('detailAnnualSalary').addEventListener('input', calculateDetailSimulation);
+        document.getElementById('detailTransportation').addEventListener('input', calculateDetailSimulation);
+        document.getElementById('detailWorkHoursPerWeek').addEventListener('input', calculateDetailSimulation);
+        document.getElementById('detailDependentStatus').addEventListener('change', calculateDetailSimulation);
+        document.getElementById('detailIncomeDeduction').addEventListener('input', calculateDetailSimulation);
+        document.getElementById('detailResidentDeduction').addEventListener('input', calculateDetailSimulation);
+        
+        // 初期計算の実行
+        document.addEventListener('DOMContentLoaded', function() {
+            calculateBasicSimulation();
+            calculateDetailSimulation();
+        });
+    </script>
+</body>
+</html>
+    <script id="html_badge_script1">
+        window.__genspark_remove_badge_link = "https://www.genspark.ai/api/html_badge/" +
+            "remove_badge?token=To%2FBnjzloZ3UfQdcSaYfDsLPpeSQgHM1Yg5dyXBUnis%2BzjLFAXTTn2dLiWPFMHA%2BeREoYbobVRFuyclELh4PM%2FCrGN065OoYEy4uyvc%2BDktwCYz0HT5uGqYOtKhmb5uHorUHKPFaBAM5NeLRwIsz4hiq67jGfPN2a0EzxMAbepL2c7gioiAvYmTkc0ZktZzLmZeEKkBKsO5aYW0AzA6K6vVkOkdadHua0Pr6YPPo4LxCKQeDsOHYCgJnlqEGtD6MlbHQEthST8KUGSLXak1qpFs7JqpDrE4wPNC6b55Oip81mRR%2BHo45cOPHBGmEk1FHEyqcaI5Tl%2F4FFFyE0MSd0j1MhHm6vuo9P9jTQh7meCyPJAb5p18PbUF9YfpJx4yfRuqMeTzXqwt6lxvMoaanM3F%2Fr0DI1gJfgN%2B294RDPjXq5kYAa91gqQkNO3dctpZTpjrIvpp3E7AOL0y%2FaLfU7Pan5575iv7LuRJhdIr2wBK3j%2F9iuunxngWUkSpLM57hZcikszWFGo0wzQyExKPyAVVmraeLum4SuTHY9RMqCos2R4ZBsUk4T5yLSehK3LFZ";
+        window.__genspark_locale = "ja-JP";
+        window.__genspark_token = "To/BnjzloZ3UfQdcSaYfDsLPpeSQgHM1Yg5dyXBUnis+zjLFAXTTn2dLiWPFMHA+eREoYbobVRFuyclELh4PM/CrGN065OoYEy4uyvc+DktwCYz0HT5uGqYOtKhmb5uHorUHKPFaBAM5NeLRwIsz4hiq67jGfPN2a0EzxMAbepL2c7gioiAvYmTkc0ZktZzLmZeEKkBKsO5aYW0AzA6K6vVkOkdadHua0Pr6YPPo4LxCKQeDsOHYCgJnlqEGtD6MlbHQEthST8KUGSLXak1qpFs7JqpDrE4wPNC6b55Oip81mRR+Ho45cOPHBGmEk1FHEyqcaI5Tl/4FFFyE0MSd0j1MhHm6vuo9P9jTQh7meCyPJAb5p18PbUF9YfpJx4yfRuqMeTzXqwt6lxvMoaanM3F/r0DI1gJfgN+294RDPjXq5kYAa91gqQkNO3dctpZTpjrIvpp3E7AOL0y/aLfU7Pan5575iv7LuRJhdIr2wBK3j/9iuunxngWUkSpLM57hZcikszWFGo0wzQyExKPyAVVmraeLum4SuTHY9RMqCos2R4ZBsUk4T5yLSehK3LFZ";
+    </script>
+    
+    <script id="html_notice_dialog_script" src="https://www.genspark.ai/notice_dialog.js"></script>
+    
